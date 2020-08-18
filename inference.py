@@ -11,8 +11,26 @@ from tqdm import tqdm
 from models import YOLOV3  # set ONNX_EXPORT in models.py
 from pytorch_modules.utils import IMG_EXT, device
 from utils.inference import inference
-from utils.utils import plot_one_box
+#from utils.utils import plot_one_box
+from utils.utils import plot_one_poly
 
+dota_names = [
+"plane",
+"baseball-diamond",
+"bridge",
+"ground-track-field",
+"small-vehicle",
+"large-vehicle",
+"ship",
+"tennis-court",
+"basketball-court",
+"storage-tank",
+"soccer-ball-fields",
+"roundabout",
+"harbor",
+"swimming-pool",
+"helicopter"
+]
 
 def run(img_dir,
         output_dir,
@@ -29,7 +47,7 @@ def run(img_dir,
     model.load_state_dict(state_dict['model'])
     model = model.to(device)
     model.eval()
-    colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(80)]
+    colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(15)] #ccc
     names = [n for n in os.listdir(img_dir) if osp.splitext(n)[1] in IMG_EXT]
     names.sort()
     for name in tqdm(names):
@@ -38,11 +56,15 @@ def run(img_dir,
                         nms_thres)[0]
         det_txt = []
         # Write results
-        for *xyxy, conf, _, cls in det:
-            det_txt.append(' '.join(['%g'] * 6) % (*xyxy, cls, conf))
+        #for *xyxy, conf, _, cls in det:
+        #    det_txt.append(' '.join(['%g'] * 6) % (*xyxy, cls, conf))
+        for *xyxy, conf, cls in det:
+            det_txt.append(' '.join(['%g'] * 10) % (*xyxy, cls, conf))
             if show:  # Add bbox to image
-                label = '%d %.2f' % (int(cls), conf)
-                plot_one_box(xyxy, img, label=label, color=colors[int(cls)])
+                #label = '%d %.2f' % (int(cls), conf)
+                label = '%s %.2f' % (dota_names[int(cls)], conf)
+                #plot_one_box(xyxy, img, label=label, color=colors[int(cls)])
+                plot_one_poly(xyxy, img, label=label, color=colors[int(cls)])
         with open(osp.join(output_dir,
                            osp.splitext(name)[0] + '.txt'), 'w') as f:
             f.write('\n'.join(det_txt))

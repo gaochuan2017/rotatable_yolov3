@@ -1,0 +1,6 @@
+numpy>=1.11
+opencv-python>=3.3
+tqdm
+lmdb>=0.98
+hydra-core
+pytorch-lightning

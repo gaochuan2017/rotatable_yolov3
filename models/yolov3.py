@@ -6,11 +6,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.quantization import DeQuantStub, QuantStub
 
-from pytorch_modules.backbones import (mobilenet_v2, resnet34, resnet50,
+from pytorch_modules.backbones import (mobilenet, resnet34, resnet50,
                                        resnext50_32x4d)
+#from pytorch_modules.backbones import (resnext50_32x4d, resnet34, resnet50)                                      
 from pytorch_modules.backbones.mobilenet import ConvBNReLU, InvertedResidual
 from pytorch_modules.nn import ConvNormAct, SeparableConvNormAct
 from pytorch_modules.utils import initialize_weights, replace_relu6
+#from pytorch_modules.utils import initialize_weights
 
 from .fpn import FPN
 from .spp import SPP
@@ -68,7 +70,8 @@ class YOLOV3(nn.Module):
                 [[10, 13], [16, 30], [33, 23]],
             ]):
         super(YOLOV3, self).__init__()
-        self.backbone = mobilenet_v2(pretrained=True)
+        self.backbone = mobilenet.mobilenet_v2(pretrained=True)
+        #self.backbone = resnet50(pretrained=True)
         depth = 5
         width = [512, 256, 128]
         planes_list = [1280, 96, 32]

@@ -9,7 +9,8 @@ import torch.distributed as dist
 from torch.utils.data import DataLoader, DistributedSampler
 
 from models import YOLOV3
-from pytorch_modules.utils import Fetcher, Trainer
+#from pytorch_modules.utils import Fetcher, Trainer
+from my_pytorch_modules.utils import Fetcher, Trainer
 from utils.datasets import CocoDataset
 from utils.utils import compute_loss
 
@@ -25,7 +26,7 @@ def train(data_dir, epochs, img_size, batch_size, accumulate, lr, adam, resume,
                              multi_scale=multi_scale,
                              rect=rect,
                              with_label=False,
-                             mosaic=True)
+                             mosaic=False )#gao  
     train_loader = DataLoader(
         train_data,
         batch_size=batch_size,

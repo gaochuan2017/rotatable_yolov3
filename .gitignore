@@ -219,6 +219,9 @@ cmake-build-release/
 # IntelliJ
 out/
 
+#data
+data/
+
 # mpeltonen/sbt-idea plugin
 .idea_modules/
 
@@ -233,3 +236,5 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+
+*.zip

@@ -364,7 +364,9 @@ def compute_loss(p, targets, model):  # predictions, targets, model
             # lt += l2.mean() / 5.
 
             t = torch.zeros_like(ps[:, 5:-1])  # targets
-            t[range(nb), tcls[i]] = 1.0
+            #if(not (tcls[i]<= 14).all()):
+            #    print("error!!!!")
+            t[range(nb), tcls[i]-1] = 1.0
             lcls += BCE(ps[:, 5:-1].sigmoid(), t).mean()  # BCE
 
             lobj += BCE(pi[..., 4].sigmoid(), tobj) * iou.mean()
@@ -439,9 +441,13 @@ def non_max_suppression(prediction, conf_thres=0.5, nms_thres=0.5):
     Returns detections with shape:
         (x1, y1, x2, y2, x3, y3, x4, y4, conf, class)
     """
-
     output = [torch.zeros((0, 10)).to(prediction[0].device)] * len(prediction)
     for image_i, pred in enumerate(prediction):
+        pred_points = xywht2polygon(torch.cat((pred[:,0:4], pred[:, -1:]), 1).t())
+        pred[...,5:-1] = pred[...,5:-1] * pred[...,4:5] 
+        conf, j = pred[:, 5:-1].max(1)
+        pred = torch.cat((pred_points.view(-1,8), conf.view(-1,1) , j.view(-1,1).float()),1)
+        
         i = (pred[:, 8] > conf_thres) & torch.isfinite(pred).all(1)
         pred = pred[i]
 
@@ -610,7 +616,8 @@ def plot_one_poly(poly, img, color=None, label=None, line_thickness=None):
     tl = line_thickness or round(
         0.002 * (img.shape[0] + img.shape[1]) / 2) + 1  # line thickness
     color = color or [random.randint(0, 255) for _ in range(3)]
-    cv2.drawContours(img, [poly.reshape(-1, 1, 2)], 0, color, thickness=tl)
+    poly1 = np.array(poly,dtype=np.int32).reshape(-1, 1, 2)
+    cv2.polylines(img, [poly1], True, color, thickness=tl)
     if label:
         tf = max(tl - 1, 1)  # font thickness
         t_size = cv2.getTextSize(label, 0, fontScale=tl / 3, thickness=tf)[0]

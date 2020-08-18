@@ -147,7 +147,7 @@ class BasicDataset(torch.utils.data.Dataset):
         img, polygons = torch.ByteTensor(img), torch.FloatTensor(polygons)
         return img, polygons
 
-    def get_item(self, idx, mosaic=True):
+    def get_item(self, idx, mosaic=False):
         img, polygons = self.get_data(idx)
         img = img[..., ::-1]
         h, w, c = img.shape
@@ -173,7 +173,7 @@ class BasicDataset(torch.utils.data.Dataset):
         polygons = resize.augment_polygons(polygons)
         # augment
         if self.augments is not None:
-            if (self.mosaic and random.random() < 0.3) or (not self.mosaic and random.random() < 0.5):
+            if (self.mosaic and random.random() < 0.0) or (not self.mosaic and random.random() < 0.0):
                 augments = self.augments.to_deterministic()
                 img = augments.augment_image(img)
                 polygons = augments.augment_polygons(polygons)
@@ -187,9 +187,16 @@ class BasicDataset(torch.utils.data.Dataset):
             if p.min() < 0 or p.max() > 1:
                 continue
             c = polygon.label
-            labels.append([0, c] + p.reshape(-1).tolist())
+            label = [0.0, float(c)] + p.reshape(-1).tolist()
+            if(len(label)) != 10:
+                continue
+            #labels.append([0.0, float(c)] + p.reshape(-1).tolist())
+            labels.append(label)
+
         if len(labels):
-            labels = np.float32(labels)
+                len(labels)
+                #labels = np.concatenate(labels,axis=0)
+                labels = np.array(labels,dtype = np.float32)
         else:
             labels = np.zeros([0, 10], dtype=np.float32)
         if self.mosaic and mosaic and random.random() < 0.2:
@@ -270,7 +277,7 @@ class BasicDataset(torch.utils.data.Dataset):
     def post_fetch_fn(self, batch):
         imgs, labels = batch
         imgs = imgs.float()
-        imgs -= torch.FloatTensor([123.675, 116.28,
+        imgs -= torch.FloatTensor([123.675, 116.28,#gao
                                    103.53]).reshape(1, 3, 1, 1).to(imgs.device)
         imgs /= torch.FloatTensor([58.395, 57.12,
                                    57.375]).reshape(1, 3, 1, 1).to(imgs.device)
