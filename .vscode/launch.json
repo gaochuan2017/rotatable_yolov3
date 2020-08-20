@@ -1,0 +1,99 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "test",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/test.py",
+            "console": "integratedTerminal",
+            "args": [
+                //"data/dota/val_split/images/train.json",
+                "data/dota/dota_mini/images/valid.json",
+                "--weights",
+                //"weights/0730_683_last.pt",
+                //"weights/last.pt",
+                "weights/last.pth",
+                "--num-workers",
+                "0",
+                "--batch-size",
+                "2",
+                "--img_size",
+                "1024",
+                "1024",
+                "--conf-thres",
+                "0.1",
+            ]
+        },
+        {
+            "name": "generate_anchor",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/gen_anchors.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-filelist",
+                "/home/gaochuan/object_detection/dataset/test8p/train.txt",
+                "-output_dir",
+                "anchors_result/",
+                "-num_clusters",
+                "9"
+            ]
+        },
+        {
+            "name": "train",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/train.py",
+            "console": "integratedTerminal",
+            "args": [
+                //"data",
+                //"data/dota/dota_mini/images",
+                "data/dota/images",
+                "--epochs",
+                "300",
+                "--batch-size",
+                "2",
+                "--notest",
+                "--img_size",
+                "1024",
+                "1024",
+                "--num-workers",
+                "0"
+                //"--num-classes",
+                //"15",
+                //"--nosave",
+                //"--weights",
+                //"weights/resnet50-19c8e357.pth"
+            ],
+        },
+        {
+            //config for detect_rb.py
+            "name": "detect",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/inference.py",
+            "console": "integratedTerminal",
+            "args": [
+                "data/samples",
+                "output",
+                "--weights",
+                //"weights/0730_683_last.pt",
+                //"weights/last.pt",
+                "weights/last.pth",
+                "--num-classes",
+                "15",
+                "--img_size",
+                "1024",
+                "1024",
+                "--conf-thres",
+                "0.1",
+                "--show"
+            ]
+        }
+    ]
+}

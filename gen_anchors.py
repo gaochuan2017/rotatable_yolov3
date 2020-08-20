@@ -14,8 +14,8 @@ import shutil
 import random 
 import math
 
-width_in_cfg_file = 416.
-height_in_cfg_file = 416.
+width_in_cfg_file = 1024.
+height_in_cfg_file = 1024.
 
 def IOU(x,centroids):
     similarities = []
@@ -49,8 +49,8 @@ def write_anchors_to_file(centroids,X,anchor_file):
     print(anchors.shape)
 
     for i in range(anchors.shape[0]):
-        anchors[i][0]*=width_in_cfg_file/32.
-        anchors[i][1]*=height_in_cfg_file/32.
+        anchors[i][0]*=width_in_cfg_file
+        anchors[i][1]*=height_in_cfg_file
          
 
     widths = anchors[:,0]
@@ -130,7 +130,7 @@ def main(argv):
                     
         #line = line.replace('images','labels')
         #line = line.replace('img1','labels')
-        line = line.replace('JPEGImages','labels')        
+        line = line.replace('images','labels')        
         
 
         line = line.replace('.jpg','.txt')
@@ -139,7 +139,7 @@ def main(argv):
         f2 = open(line)
         for line in f2.readlines():
             line = line.rstrip('\n')
-            w,h = line.split(' ')[3:]            
+            w,h = line.split(' ')[3:5]            
             #print(w,h)
             annotation_dims.append(tuple(map(float,(w,h))))
     annotation_dims = np.array(annotation_dims)

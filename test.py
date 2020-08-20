@@ -24,6 +24,7 @@ def test(model, fetcher, conf_thres=1e-3, nms_thres=0.5):
     seen = 0
     s = ('%20s' + '%10s' * 6) % ('Class', 'Images', 'Targets', 'P', 'R', 'mAP',
                                  'F1')
+    print(s)
     p, r, f1, mp, mr, map, mf1 = 0., 0., 0., 0., 0., 0., 0.
     jdict, stats, ap, ap_class = [], [], [], []
     pbar = tqdm(enumerate(fetcher), total=len(fetcher))
@@ -37,6 +38,7 @@ def test(model, fetcher, conf_thres=1e-3, nms_thres=0.5):
         val_loss += compute_loss(train_out, targets,
                                  model).item()  # GIoU, obj, cls
         nb, nbi, _ = inf_out.shape
+        '''
         polygons = xywht2polygon(
             torch.cat([inf_out[..., :4], inf_out[..., -1:]],
                       2).reshape(-1, 5).t()).view(nb, nbi, 8)
@@ -44,6 +46,7 @@ def test(model, fetcher, conf_thres=1e-3, nms_thres=0.5):
         conf *= inf_out[..., 4]
         inf_out = torch.cat(
             [polygons, torch.stack([conf, cls_idx.float()], 2)], 2)
+        '''
         # Run NMS
         output = non_max_suppression(inf_out,
                                      conf_thres=conf_thres,
@@ -55,6 +58,8 @@ def test(model, fetcher, conf_thres=1e-3, nms_thres=0.5):
         # Statistics per image
         for si, pred in enumerate(output):
             labels = targets[targets[:, 0] == si, 1:]
+            # (labels[:, 0]-1) -1 is because label is from 1 to 15 while output is 0-->14
+            # labels[:,0] = labels[:,0] - 1
             nl = len(labels)
             tcls = labels[:, 0].tolist() if nl else []  # target class
             seen += 1
@@ -191,10 +196,11 @@ if __name__ == '__main__':
         collate_fn=CocoDataset.collate_fn,
     )
     val_fetcher = Fetcher(val_loader, post_fetch_fn=val_data.post_fetch_fn)
-    model = YOLOV3(len(val_data.classes))
+    model = YOLOV3(len(val_data.classes),img_size=opt.img_size)
     if opt.weights:
         state_dict = torch.load(opt.weights, map_location='cpu')
         model.load_state_dict(state_dict['model'])
+    model = model.to(device)
     metrics = test(model,
                    val_fetcher,
                    conf_thres=opt.conf_thres,

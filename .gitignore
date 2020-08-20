@@ -13,7 +13,7 @@
 *.MOV
 *.avi
 *.data
-*.json
+#*.json
 
 tmp/
 output/
@@ -24,7 +24,7 @@ output/
 
 runs/
 data/
-.vscode/
+#.vscode/
 .github/
 
 
@@ -238,3 +238,4 @@ crashlytics-build.properties
 fabric.properties
 
 *.zip
+anchors_result/*

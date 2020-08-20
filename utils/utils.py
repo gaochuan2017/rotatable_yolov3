@@ -366,7 +366,8 @@ def compute_loss(p, targets, model):  # predictions, targets, model
             t = torch.zeros_like(ps[:, 5:-1])  # targets
             #if(not (tcls[i]<= 14).all()):
             #    print("error!!!!")
-            t[range(nb), tcls[i]-1] = 1.0
+            #t[range(nb), tcls[i]-1] = 1.0
+            t[range(nb), tcls[i]] = 1.0
             lcls += BCE(ps[:, 5:-1].sigmoid(), t).mean()  # BCE
 
             lobj += BCE(pi[..., 4].sigmoid(), tobj) * iou.mean()
