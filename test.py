@@ -36,7 +36,7 @@ def test(model, fetcher, conf_thres=1e-3, nms_thres=0.5):
 
         # Compute loss
         val_loss += compute_loss(train_out, targets,
-                                 model).item()  # GIoU, obj, cls
+                                 model).item()[0]  # GIoU, obj, cls
         nb, nbi, _ = inf_out.shape
         '''
         polygons = xywht2polygon(

@@ -55,7 +55,7 @@
                 //"data/dota/dota_mini/images",
                 "data/dota/images",
                 "--epochs",
-                "300",
+                "350",
                 "--batch-size",
                 "2",
                 "--notest",

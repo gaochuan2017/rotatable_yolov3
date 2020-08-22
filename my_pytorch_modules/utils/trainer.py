@@ -153,9 +153,11 @@ class Trainer:
         # lr warmup and decay
         #print("**********trainer.py in ROOT dir is running!!**********")
         self.lr_schedule()
-        print('Epoch: %d' % self.epoch)
+        print('Epoch: %d\n' % self.epoch)
+        print(('%8s'*6)%('mem','lbox','lobj','lclc','lang','loss'))
         self.model.train()
         total_loss = 0
+        mloss = torch.zeros(5).to(device)
         pbar = tqdm(self.fetcher)
         for idx, (inputs, targets) in enumerate(pbar):
             if inputs.size(0) < 2:
@@ -166,11 +168,12 @@ class Trainer:
             ):
                 self.model.require_backward_grad_sync = True
             outputs = self.model(inputs)
-            loss = self.loss_fn(outputs, targets, self.model)
+            loss, loss_item= self.loss_fn(outputs, targets, self.model)
             if torch.isnan(loss):
                 print('nan loss')
                 continue
-            total_loss += loss.item()
+            #total_loss += loss.item()
+            mloss += loss_item
             loss /= self.accumulate
             # Compute gradient
             if self.mixed_precision:
@@ -180,8 +183,11 @@ class Trainer:
                 loss.backward()
             mem = torch.cuda.memory_cached() / 1E9 if torch.cuda.is_available(
             ) else 0  # (GB)
-            pbar.set_description('mem: %8g, loss: %8g' %
-                                 (mem, total_loss / batch_idx))
+            #pbar.set_description('mem: %8g, loss: %8g' %
+            #                     (mem, total_loss / batch_idx))
+            #mloss = mloss/batch_idx
+            show = ('%8.4g'*6) % (mem, *(mloss/batch_idx))
+            pbar.set_description(show)
             if self.accumulate_count % self.accumulate == 0:
                 self.accumulate_count = 0
                 torch.nn.utils.clip_grad_norm_(self.model.parameters(), 10)
