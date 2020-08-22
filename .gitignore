@@ -13,7 +13,7 @@
 *.MOV
 *.avi
 *.data
-#*.json
+*.json
 
 tmp/
 output/
